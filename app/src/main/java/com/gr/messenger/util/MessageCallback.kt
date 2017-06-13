@@ -4,14 +4,14 @@ import android.graphics.Canvas
 import android.os.Build
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.helper.ItemTouchHelper
-import android.util.Log
+import android.view.View
 
 /**
  * Created by gr on 2017/6/11.
  */
 class MessageCallback : ItemTouchHelper.Callback() {
     private var onItemMove: ((fromPosition: Int, toPosition: Int) -> Boolean)? = null
-    private var onItemRemoved: ((position: Int) -> Unit)? = null
+    private var onItemRemoved: ((view: View, position: Int) -> Unit)? = null
 
     override fun getMovementFlags(p0: RecyclerView?, p1: RecyclerView.ViewHolder?): Int {
         val dragFlags = ItemTouchHelper.UP or ItemTouchHelper.DOWN
@@ -24,7 +24,7 @@ class MessageCallback : ItemTouchHelper.Callback() {
     }
 
     override fun onSwiped(p0: RecyclerView.ViewHolder, p1: Int) {
-        onItemRemoved?.invoke(p0.adapterPosition)
+        onItemRemoved?.invoke(p0.itemView, p0.adapterPosition)
     }
 
     override fun isLongPressDragEnabled(): Boolean {
@@ -64,7 +64,7 @@ class MessageCallback : ItemTouchHelper.Callback() {
         onItemMove = listener
     }
 
-    fun setOnItemMovedListener(listener: ((position: Int) -> Unit)) {
+    fun setOnItemMovedListener(listener: ((view: View, position: Int) -> Unit)) {
         onItemRemoved = listener
     }
 }

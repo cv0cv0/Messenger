@@ -1,8 +1,10 @@
 package com.gr.messenger
 
 import android.Manifest
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
+import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.helper.ItemTouchHelper
@@ -32,7 +34,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        MainActivityPermissionsDispatcher.onRequestPermissionsResult(this,requestCode,grantResults)
+        MainActivityPermissionsDispatcher.onRequestPermissionsResult(this, requestCode, grantResults)
     }
 
     @NeedsPermission(Manifest.permission.READ_SMS)
@@ -60,15 +62,22 @@ class MainActivity : AppCompatActivity() {
                 recyclerView.layoutManager = LinearLayoutManager(this@MainActivity)
                 recyclerView.adapter = adapter
 
-                val callback=MessageCallback()
+                val callback = MessageCallback()
                 callback.setOnItemMoveListener { fromPosition, toPosition ->
-                    Collections.swap(datas,fromPosition,toPosition)
+                    Collections.swap(datas, fromPosition, toPosition)
                     adapter.notifyItemMoved(fromPosition, toPosition)
                     true
                 }
-                callback.setOnItemMovedListener { position ->
-                    datas.removeAt(position)
+                callback.setOnItemMovedListener { view, position ->
+                    val removedField = datas.removeAt(position)
                     adapter.notifyItemRemoved(position)
+                    Snackbar.make(view, "已删除1条短信", Snackbar.LENGTH_LONG)
+                            .setAction("撤消", {
+                                datas.add(position, removedField)
+                                adapter.notifyItemInserted(position)
+                            })
+                            .setActionTextColor(Color.parseColor("#eeff41"))
+                            .show()
                 }
                 ItemTouchHelper(callback).attachToRecyclerView(recyclerView)
             }
